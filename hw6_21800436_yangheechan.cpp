@@ -33,7 +33,7 @@ int main(){
         return 0x0;
     }
 
-    // retreive informations about the xisting nodes in the map
+    // retreive informations about the existing nodes in the map
     string line;
     getline(myfile, line);
     vector<string> nodes = nodeGetter(line, '\t');
@@ -41,7 +41,7 @@ int main(){
     // check whether the number of nodes are eligible to continue the program.
     check_eligibility(nodes);
     
-    // get directions information for each nodes
+    // get map data information for each nodes
     vector<vector<string> > map;
     int count = 0;
     while(getline(myfile, line)){
@@ -49,15 +49,20 @@ int main(){
         count++;
     }
 
+    // print adjacency matrix of map
     cout << "Adjancy Matrix of map." << endl;
     print_map(map, nodes);
 
+    // prints adjacency list of map
     cout << "Adjancy List of map." << endl;
     adjacency_list(map, nodes);
+
+    myfile.close();
 
     return 0x0;
 }
 
+// retreive informations about the existing nodes in the map
 vector<string> nodeGetter(string input, char delimter){
     vector<string> nodes;
     stringstream ss(input);
@@ -69,6 +74,7 @@ vector<string> nodeGetter(string input, char delimter){
     return nodes;
 }
 
+// check whether the number of nodes are eligible to continue the program.
 void check_eligibility(vector<string> nodes){
     cout << "The number of nodes : " << nodes.size() << endl;
     if(nodes.size() > 30){
@@ -80,6 +86,7 @@ void check_eligibility(vector<string> nodes){
     }cout << endl;
 }
 
+// get map data information for each nodes
 vector<string> mapGetter(string input, char delimiter){
     vector<string> map;
     stringstream ss(input);
@@ -94,6 +101,7 @@ vector<string> mapGetter(string input, char delimiter){
     return map;
 }
 
+// print adjacency matrix of map
 void print_map(vector<vector<string> > map, vector<string> nodes){
     int a = 11;
     cout << "           ";
@@ -109,6 +117,7 @@ void print_map(vector<vector<string> > map, vector<string> nodes){
     }cout << endl;
 }
 
+// prints adjacency list of map
 void adjacency_list(vector<vector<string> > map, vector<string> nodes){
     for(int i=0; i < nodes.size(); i++){
         cout << nodes[i];
@@ -122,6 +131,7 @@ void adjacency_list(vector<vector<string> > map, vector<string> nodes){
     }cout << endl;
 }
 
+// check whether the data is a leading path or not
 bool check_data(string data){
     for(int i=0; i < data.size(); i++){
         if(!isdigit(data[i])) return false;
