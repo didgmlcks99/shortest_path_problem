@@ -13,15 +13,25 @@
 #include <sstream>
 #include <vector>
 #include <ctype.h>
+#include <algorithm>
 
 using namespace std;
 
+struct Node {
+    string init_d;
+    int distance;
+    int predecessor;
+};
+
 vector<string> nodeGetter(string input, char delimter);
 void check_eligibility(vector<string> nodes);
-vector<string> mapGetter(string input, char delimiter);
-void print_map(vector<vector<string> > map, vector<string> nodes);
-void adjacency_list(vector<vector<string> > map, vector<string> nodes);
+vector<Node> mapGetter(string input, char delimiter);
+void print_map(vector<vector<Node> > map, vector<string> nodes);
+void adjacency_list(vector<vector<Node> > map, vector<string> nodes);
 bool check_data(string data);
+void dijkstra(vector<vector<Node> > map);
+void init_single_source(vector<vector<Node> > &map, int source);
+Node init_Node(string temp);
 
 int main(){
     // open data file of the adjacency matrix of the map
@@ -42,7 +52,7 @@ int main(){
     check_eligibility(nodes);
     
     // get map data information for each nodes
-    vector<vector<string> > map;
+    vector<vector<Node> > map;
     int count = 0;
     while(getline(myfile, line)){
         map.push_back(mapGetter(line, '\t'));
@@ -50,12 +60,14 @@ int main(){
     }
 
     // print adjacency matrix of map
-    cout << "Adjancy Matrix of map." << endl;
+    cout << "Adjancy Matrix of original map." << endl;
     print_map(map, nodes);
 
     // prints adjacency list of map
-    cout << "Adjancy List of map." << endl;
+    cout << "Adjancy List of original map." << endl;
     adjacency_list(map, nodes);
+
+    dijkstra(map);
 
     myfile.close();
 
@@ -87,22 +99,22 @@ void check_eligibility(vector<string> nodes){
 }
 
 // get map data information for each nodes
-vector<string> mapGetter(string input, char delimiter){
-    vector<string> map;
+vector<Node> mapGetter(string input, char delimiter){
+    vector<Node> map;
     stringstream ss(input);
     string temp;
 
     ss >> temp;
 
     while(ss >> temp){
-        map.push_back(temp);
+        map.push_back(init_Node(temp));
     }
 
     return map;
 }
 
 // print adjacency matrix of map
-void print_map(vector<vector<string> > map, vector<string> nodes){
+void print_map(vector<vector<Node> > map, vector<string> nodes){
     int a = 11;
     cout << "           ";
     for(int i=0; i < nodes.size(); i++){
@@ -112,18 +124,18 @@ void print_map(vector<vector<string> > map, vector<string> nodes){
     for(int i=0; i < map.size(); i++){
         cout << left << setw(a) << setfill(' ') << nodes[i];
         for(int j=0; j < map[i].size(); j++){
-            cout << left << setw(a) << setfill(' ') << map[i][j];
+            cout << left << setw(a) << setfill(' ') << map[i][j].init_d;
         }cout << endl;
     }cout << endl;
 }
 
 // prints adjacency list of map
-void adjacency_list(vector<vector<string> > map, vector<string> nodes){
+void adjacency_list(vector<vector<Node> > map, vector<string> nodes){
     for(int i=0; i < nodes.size(); i++){
         cout << nodes[i];
         for(int j=0; j < map[i].size(); j++){
             if(i != j){
-                if(check_data(map[i][j])){
+                if(check_data(map[i][j].init_d)){
                     cout << " --> " << nodes[j];
                 }
             }
@@ -137,4 +149,24 @@ bool check_data(string data){
         if(!isdigit(data[i])) return false;
     }
     return true;
+}
+
+void dijkstra(vector<vector<Node> > map){
+    for(int i=0; i < map.size(); i++){
+        init_single_source(map, i);
+    }
+}
+
+void init_single_source(vector<vector<Node> > &map, int source){
+    
+}
+
+Node init_Node(string temp){
+    Node init;
+
+    init.init_d = temp;
+    init.distance = -1;
+    init.predecessor = -1;
+
+    return init;
 }
