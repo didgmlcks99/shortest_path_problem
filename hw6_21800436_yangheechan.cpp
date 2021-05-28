@@ -1,6 +1,7 @@
 /*
 
 ## 강의
+(ppt slide) 9. Chapter 24 shortest paths 
 
 ## blogs and websites
 
@@ -28,7 +29,7 @@ struct Node {
 
 vector<string> nodeGetter(string input, char delimter);
 void check_eligibility(vector<string> nodes);
-vector<Node> mapGetter(string input, char delimiter);
+vector<Node> mapGetter(string input, char delimiter, int predecessor);
 void print_map(vector<vector<Node> > map, vector<string> nodes);
 void adjacency_list(vector<vector<Node> > map, vector<string> nodes);
 bool check_data(string data);
@@ -38,6 +39,7 @@ void dijkstra(vector<vector<Node> > map, vector<string> nodes);
 Node extract_min(vector<Node> &Q);
 void relaxation(Node U, Node &V, Node W);
 void print_shortest_path(vector<vector<Node> > map, vector<string> nodes);
+void floyd_warshall(vector<vector<Node> > map, vector<string> nodes);
 
 int main(){
     // open data file of the adjacency matrix of the map
@@ -61,7 +63,7 @@ int main(){
     vector<vector<Node> > map;
     int count = 0;
     while(getline(myfile, line)){
-        map.push_back(mapGetter(line, '\t'));
+        map.push_back(mapGetter(line, '\t', count));
         count++;
     }
 
@@ -74,6 +76,8 @@ int main(){
     adjacency_list(map, nodes);
 
     dijkstra(map, nodes);
+
+    floyd_warshall(map, nodes);
 
     myfile.close();
 
@@ -105,7 +109,7 @@ void check_eligibility(vector<string> nodes){
 }
 
 // get map data information for each nodes
-vector<Node> mapGetter(string input, char delimiter){
+vector<Node> mapGetter(string input, char delimiter, int predecessor){
     vector<Node> map;
     stringstream ss(input);
     string temp;
@@ -114,7 +118,7 @@ vector<Node> mapGetter(string input, char delimiter){
 
     int position = 0;
     while(ss >> temp){
-        map.push_back(make_node(temp, -1, -1, position));
+        map.push_back(make_node(temp, 0x0, predecessor, position));
         position++;
     }
 
@@ -155,7 +159,6 @@ void adjacency_list(vector<vector<Node> > map, vector<string> nodes){
 bool check_data(string data){
     for(int i=0; i < data.size(); i++){
         if(!isdigit(data[i])) return false;
-        else if(stoi(data) == 0) return false;
     }
     return true;
 }
@@ -173,8 +176,17 @@ Node make_node(string temp, int distance, int predecessor, int position){
 
     init.position = position;
     init.init_d = temp;
-    init.distance = distance;
-    init.predecessor = predecessor;
+    if(check_data(temp)){
+        if(stoi(temp) == 0){
+            init.predecessor = -1;
+        }else{
+            init.predecessor = predecessor;
+        }
+        init.distance = stoi(temp);
+    }else{
+        init.distance = numeric_limits<int>::max();;
+        init.predecessor = -1;
+    }
 
     return init;
 }
@@ -238,4 +250,29 @@ void print_shortest_path(vector<vector<Node> > map, vector<string> nodes){
             cout << left << setw(a) << setfill(' ') << map[i][j].distance;
         }cout << endl;
     }cout << endl;
+}
+
+void floyd_warshall(vector<vector<Node> > floyd_map, vector<string> nodes){
+    vector<vector<vector<Node> > > D;
+    for(int i=0; i < floyd_map.size(); i++){
+        D.push_back(floyd_map);
+    }
+
+    for(int k = 1; k < floyd_map.size(); k++){
+        for(int i = 0; i < floyd_map.size(); i++){
+            for(int j = 0; j < floyd_map.size(); j++){
+                if(D[k-1][i][k].distance != numeric_limits<int>::max() && D[k-1][k][j].distance != numeric_limits<int>::max()){
+                    if(D[k-1][i][k].distance + D[k-1][k][j].distance < D[k-1][i][j].distance){
+                        D[k][i][j].distance = D[k-1][i][k].distance + D[k-1][k][j].distance;
+                        D[k][i][j].predecessor = k;
+                    }else{
+                        D[k][i][j].distance = D[k-1][i][j].distance;
+                    }
+                }else{
+                    D[k][i][j].distance = D[k-1][i][j].distance;
+                }
+            }
+        }
+    }
+    print_shortest_path(D[floyd_map.size()-1], nodes);
 }
