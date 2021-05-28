@@ -32,11 +32,12 @@ vector<Node> mapGetter(string input, char delimiter);
 void print_map(vector<vector<Node> > map, vector<string> nodes);
 void adjacency_list(vector<vector<Node> > map, vector<string> nodes);
 bool check_data(string data);
-void init_single_source(vector<Node> &map);
+void init_single_source(vector<Node> &map, int source);
 Node make_node(string temp, int distance, int predecessor, int position);
 void dijkstra(vector<vector<Node> > map, vector<string> nodes);
 Node extract_min(vector<Node> &Q);
-void update_map(vector<Node> &map, vector<string> nodes, Node U);
+void relaxation(Node U, Node &V, Node W);
+void print_shortest_path(vector<vector<Node> > map, vector<string> nodes);
 
 int main(){
     // open data file of the adjacency matrix of the map
@@ -154,16 +155,17 @@ void adjacency_list(vector<vector<Node> > map, vector<string> nodes){
 bool check_data(string data){
     for(int i=0; i < data.size(); i++){
         if(!isdigit(data[i])) return false;
+        else if(stoi(data) == 0) return false;
     }
     return true;
 }
 
-void init_single_source(vector<Node> &map){
+void init_single_source(vector<Node> &map, int source){
     for(int i=0; i < map.size(); i++){
         map[i].distance = numeric_limits<int>::max();
         map[i].predecessor = -1;
     }
-    map[0].distance = 0;
+    map[source].distance = 0;
 }
 
 Node make_node(string temp, int distance, int predecessor, int position){
@@ -179,16 +181,23 @@ Node make_node(string temp, int distance, int predecessor, int position){
 
 void dijkstra(vector<vector<Node> > dijkstra_map, vector<string> nodes){
     for(int i=0; i < dijkstra_map.size(); i++){
-        init_single_source(dijkstra_map[i]);
+        init_single_source(dijkstra_map[i], i);
         vector<Node> Q = dijkstra_map[i];
         while(!Q.empty()){
             Node U = extract_min(Q);
             dijkstra_map[i][U.position] = U;
             for(int j=0; j < dijkstra_map[U.position].size(); j++){
-                
+                if(check_data(dijkstra_map[U.position][j].init_d)){
+                    for(int k=0; k < Q.size(); k++){
+                        if(Q[k].position == dijkstra_map[i][j].position){
+                            relaxation(U, Q[k], dijkstra_map[U.position][j]);
+                        }
+                    }
+                }
             }
         }
     }
+    print_shortest_path(dijkstra_map, nodes);
 }
 
 Node extract_min(vector<Node> &Q){
@@ -209,10 +218,24 @@ Node extract_min(vector<Node> &Q){
     return min_adj;
 }
 
-void update_map(vector<Node> &map, vector<string> nodes, Node U){
-    for(int i=0; i < map.size(); i++){
+void relaxation(Node U, Node &V, Node W){
+    if(V.distance > U.distance + stoi(W.init_d)){
+        V.distance = U.distance + stoi(W.init_d);
+        V.predecessor = U.position;
     }
 }
 
-void relaxation(){
+void print_shortest_path(vector<vector<Node> > map, vector<string> nodes){
+    int a = 11;
+    cout << "           ";
+    for(int i=0; i < nodes.size(); i++){
+        cout << left << setw(a) << setfill(' ') << nodes[i];
+    }cout << endl;
+
+    for(int i=0; i < map.size(); i++){
+        cout << left << setw(a) << setfill(' ') << nodes[i];
+        for(int j=0; j < map[i].size(); j++){
+            cout << left << setw(a) << setfill(' ') << map[i][j].distance;
+        }cout << endl;
+    }cout << endl;
 }
