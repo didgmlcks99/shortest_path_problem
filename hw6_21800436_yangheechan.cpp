@@ -267,9 +267,11 @@ void floyd_warshall(vector<vector<Node> > floyd_map, vector<string> nodes){
                         D[k][i][j].predecessor = k;
                     }else{
                         D[k][i][j].distance = D[k-1][i][j].distance;
+                        D[k][i][j].predecessor = D[k-1][i][j].predecessor;
                     }
                 }else{
                     D[k][i][j].distance = D[k-1][i][j].distance;
+                    D[k][i][j].predecessor = D[k-1][i][j].predecessor;
                 }
             }
         }
