@@ -14,9 +14,8 @@
 #include <sstream>
 #include <vector>
 #include <ctype.h>
-#include <algorithm>
 #include <limits>
-#include <queue>
+#include <time.h>
 
 using namespace std;
 
@@ -35,10 +34,10 @@ void adjacency_list(vector<vector<Node> > map, vector<string> nodes);
 bool check_data(string data);
 void init_single_source(vector<Node> &map, int source);
 Node make_node(string temp, int distance, int predecessor, int position);
-void dijkstra(vector<vector<Node> > map, vector<string> nodes);
 Node extract_min(vector<Node> &Q);
 void relaxation(Node U, Node &V, Node W);
 void print_shortest_path(vector<vector<Node> > map, vector<string> nodes);
+void dijkstra(vector<vector<Node> > map, vector<string> nodes);
 void floyd_warshall(vector<vector<Node> > map, vector<string> nodes);
 
 int main(){
@@ -67,16 +66,20 @@ int main(){
         count++;
     }
 
-    // print adjacency matrix of map
-    cout << "Adjancy Matrix of original map." << endl;
-    print_map(map, nodes);
+    // // print adjacency matrix of map
+    // cout << "Adjancy Matrix of original map." << endl;
+    // print_map(map, nodes);
 
-    // prints adjacency list of map
-    cout << "Adjancy List of original map." << endl;
-    adjacency_list(map, nodes);
+    // // prints adjacency list of map
+    // cout << "Adjancy List of original map." << endl;
+    // adjacency_list(map, nodes);
 
+    // applies dijkstra's algorithm to the map for each node as a source
+    // to find the distance of shortest path from each node as source to other nodes
     dijkstra(map, nodes);
 
+    // applies floyds-warshall's algorithm to the map for each node as a source
+    // to find the distance of shortest path from each node as source to other nodes
     floyd_warshall(map, nodes);
 
     myfile.close();
@@ -163,6 +166,7 @@ bool check_data(string data){
     return true;
 }
 
+// initiate all the nodes with max value excluding the source node
 void init_single_source(vector<Node> &map, int source){
     for(int i=0; i < map.size(); i++){
         map[i].distance = numeric_limits<int>::max();
@@ -171,6 +175,7 @@ void init_single_source(vector<Node> &map, int source){
     map[source].distance = 0;
 }
 
+// creates a node to be added to the map
 Node make_node(string temp, int distance, int predecessor, int position){
     Node init;
 
@@ -191,27 +196,7 @@ Node make_node(string temp, int distance, int predecessor, int position){
     return init;
 }
 
-void dijkstra(vector<vector<Node> > dijkstra_map, vector<string> nodes){
-    for(int i=0; i < dijkstra_map.size(); i++){
-        init_single_source(dijkstra_map[i], i);
-        vector<Node> Q = dijkstra_map[i];
-        while(!Q.empty()){
-            Node U = extract_min(Q);
-            dijkstra_map[i][U.position] = U;
-            for(int j=0; j < dijkstra_map[U.position].size(); j++){
-                if(check_data(dijkstra_map[U.position][j].init_d)){
-                    for(int k=0; k < Q.size(); k++){
-                        if(Q[k].position == dijkstra_map[i][j].position){
-                            relaxation(U, Q[k], dijkstra_map[U.position][j]);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    print_shortest_path(dijkstra_map, nodes);
-}
-
+// extracts node with the minimum distance from a map
 Node extract_min(vector<Node> &Q){
     int min= numeric_limits<int>::max();
     int target = 0;
@@ -230,6 +215,7 @@ Node extract_min(vector<Node> &Q){
     return min_adj;
 }
 
+// changes the distance of a node to a shorter path distance
 void relaxation(Node U, Node &V, Node W){
     if(V.distance > U.distance + stoi(W.init_d)){
         V.distance = U.distance + stoi(W.init_d);
@@ -237,6 +223,8 @@ void relaxation(Node U, Node &V, Node W){
     }
 }
 
+// prints the result map for the distance of the shortest path
+// for each node as a source to other nodes
 void print_shortest_path(vector<vector<Node> > map, vector<string> nodes){
     int a = 11;
     cout << "           ";
@@ -252,7 +240,42 @@ void print_shortest_path(vector<vector<Node> > map, vector<string> nodes){
     }cout << endl;
 }
 
+// applies dijkstra's algorithm to the map for each node as a source
+// to find the distance of shortest path from each node as source to other nodes
+void dijkstra(vector<vector<Node> > dijkstra_map, vector<string> nodes){
+    clock_t t;
+    t = clock();
+    
+    for(int i=0; i < dijkstra_map.size(); i++){
+        init_single_source(dijkstra_map[i], i);
+        vector<Node> Q = dijkstra_map[i];
+        while(!Q.empty()){
+            Node U = extract_min(Q);
+            dijkstra_map[i][U.position] = U;
+            for(int j=0; j < dijkstra_map[U.position].size(); j++){
+                if(check_data(dijkstra_map[U.position][j].init_d)){
+                    for(int k=0; k < Q.size(); k++){
+                        if(Q[k].position == dijkstra_map[i][j].position){
+                            relaxation(U, Q[k], dijkstra_map[U.position][j]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    t = clock() - t;
+    
+    cout << "It took " << (double)t / CLOCKS_PER_SEC << " seconds to computer shortest path between cities with Dijkstra's algorithm as follows." << endl;
+    print_shortest_path(dijkstra_map, nodes);
+}
+
+// applies floyds-warshall's algorithm to the map for each node as a source
+// to find the distance of shortest path from each node as source to other nodes
 void floyd_warshall(vector<vector<Node> > floyd_map, vector<string> nodes){
+    clock_t t;
+    t = clock();
+
     vector<vector<vector<Node> > > D;
     for(int i=0; i < floyd_map.size(); i++){
         D.push_back(floyd_map);
@@ -276,5 +299,9 @@ void floyd_warshall(vector<vector<Node> > floyd_map, vector<string> nodes){
             }
         }
     }
+
+    t = clock() - t;
+    
+    cout << "It took " << (double)t / CLOCKS_PER_SEC << " seconds to computer shortest path between cities with Floyd algorithm as follows." << endl;
     print_shortest_path(D[floyd_map.size()-1], nodes);
 }
