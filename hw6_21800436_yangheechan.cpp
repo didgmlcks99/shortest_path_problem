@@ -1,16 +1,15 @@
 /*
-
 ## 강의
 (ppt slide) 9. Chapter 24 shortest paths 
 
 ## blogs and websites
-
+passing vector : https://www.geeksforgeeks.org/passing-vector-function-cpp/
+set max : https://stackoverflow.com/questions/8690567/setting-an-int-to-infinity-in-c
 */
 
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-// #include <stdlib.h>
 #include <sstream>
 #include <vector>
 #include <ctype.h>
@@ -42,7 +41,7 @@ void floyd_warshall(vector<vector<Node> > map, vector<string> nodes);
 
 int main(){
     // open data file of the adjacency matrix of the map
-    ifstream myfile("hw6_data.txt");
+    ifstream myfile("hw6.data");
     if(myfile.is_open()){}
     else{
         cout << "[ERROR] failed opening file." << endl;
@@ -245,7 +244,7 @@ void print_shortest_path(vector<vector<Node> > map, vector<string> nodes){
 void dijkstra(vector<vector<Node> > dijkstra_map, vector<string> nodes){
     clock_t t;
     t = clock();
-    
+
     for(int i=0; i < dijkstra_map.size(); i++){
         init_single_source(dijkstra_map[i], i);
         vector<Node> Q = dijkstra_map[i];
