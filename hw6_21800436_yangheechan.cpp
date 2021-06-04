@@ -25,9 +25,9 @@ struct Node {
     int predecessor;
 };
 
-vector<string> nodeGetter(string input, char delimter);
+vector<string> nodeGetter(string input);
 void check_eligibility(vector<string> nodes);
-vector<Node> mapGetter(string input, char delimiter, int predecessor);
+vector<Node> mapGetter(string input, int predecessor);
 void print_map(vector<vector<Node> > map, vector<string> nodes);
 void adjacency_list(vector<vector<Node> > map, vector<string> nodes);
 bool check_data(string data);
@@ -52,7 +52,7 @@ int main(){
     // retreive informations about the existing nodes in the map
     string line;
     getline(myfile, line);
-    vector<string> nodes = nodeGetter(line, '\t');
+    vector<string> nodes = nodeGetter(line);
 
     // check whether the number of nodes are eligible to continue the program.
     check_eligibility(nodes);
@@ -61,7 +61,7 @@ int main(){
     vector<vector<Node> > map;
     int count = 0;
     while(getline(myfile, line)){
-        map.push_back(mapGetter(line, '\t', count));
+        map.push_back(mapGetter(line, count));
         count++;
     }
 
@@ -87,7 +87,7 @@ int main(){
 }
 
 // retreive informations about the existing nodes in the map
-vector<string> nodeGetter(string input, char delimter){
+vector<string> nodeGetter(string input){
     vector<string> nodes;
     stringstream ss(input);
     string temp;
@@ -111,7 +111,7 @@ void check_eligibility(vector<string> nodes){
 }
 
 // get map data information for each nodes
-vector<Node> mapGetter(string input, char delimiter, int predecessor){
+vector<Node> mapGetter(string input, int predecessor){
     vector<Node> map;
     stringstream ss(input);
     string temp;
